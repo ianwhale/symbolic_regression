@@ -62,3 +62,18 @@ TEST_CASE("RPN String: \"x x x * 2 / - x x * x * 3 / +\"", "[unit]") {
         float_eq(Evaluator::evaluate_rpn(rpn, -1.449), -3.51291)
     );
 }
+
+/**
+ * Test formula: x * 1.25
+ */
+TEST_CASE("RPN String: \"x 1.25 *\"", "[unit]") {
+    const string rpn = "x 1.25 *";
+
+    REQUIRE(
+        float_eq(Evaluator::evaluate_rpn(rpn, (2/3)), (5/6))
+    );
+
+    REQUIRE(
+        float_eq(Evaluator::evaluate_rpn(rpn, (5/8)), (25/32))
+    );
+}
