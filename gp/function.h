@@ -15,7 +15,12 @@ using namespace std;
 class Function {
 public:
     virtual float operator()(float x);
-    virtual pair<float, float> domain();
+    pair<float, float> domain() {return make_pair(this->lower, this->upper);}
+
+protected:
+    Function(float _lower, float _upper) : lower(_lower), upper(_upper) {}
+    float lower;
+    float upper;
 };
 
 /**
@@ -23,17 +28,17 @@ public:
  */
 class Log : public Function {
 public:
+    Log() : Function(-0.9999999, 1) {}
     float operator()(float x) {return log(1 + x);}
-    pair<float, float> domain() {return make_pair(-1.000001, 1000.0);}
 };
 
 /**
- * Class representing sqrt.
+ * Class representing the exponential (e^x).
  */
-class Sqrt : public Function {
+class Exp : public Function {
 public:
-    float operator()(float x) {return sqrt(1 + x);}
-    pair<float, float> domain() {return make_pair(-1.0, 1000.0);}
+    Exp() : Function(-10, 10) {}
+    float operator()(float x) {return exp(x);}
 };
 
 /**
@@ -41,17 +46,30 @@ public:
  */
 class Sin : public Function {
 public:
+    Sin() : Function(-10, 10) {}
     float operator()(float x) {return sin(x);}
-    pair<float, float> domain() {return make_pair(-10, 10);}
+};
+
+/**
+ * Class representing a simple shifted parabola.
+ */
+class Parabola : public Function {
+public:
+    Parabola() : Function(-100, 100) {}
+    float operator()(float x) {return (x + 1) * (x + 1) - 3;}
 };
 
 class FunctionFactory {
 public:
+    /**
+     * Function types.
+     */
     enum FunctionType {
         INVALID = 0,
         LOG = 1,
-        SQRT = 2,
-        SIN = 3
+        EXP = 2,
+        SIN = 3,
+        PARABOLA = 4
     };
 
     /**
@@ -64,11 +82,14 @@ public:
             case LOG:
                 return Log();
                 break;
-            case SQRT:
-                return Sqrt();
+            case EXP:
+                return Exp();
                 break;
             case SIN:
                 return Sin();
+                break;
+            case PARABOLA:
+                return Parabola();
                 break;
             default:
                 cout << "Invalid function type " << type << \
