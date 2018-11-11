@@ -24,6 +24,13 @@ int main(int argc, char ** argv) {
 
     //
     // Get command line arguments.
+    // Arguments are:
+    //  -m <float> mutation rate, in range [0, 1]
+    //  -c <float> crossover rate, in range [0, 1]
+    //  -s <int> seed, random seed
+    //  -f <int> function, from FunctionFactory::FunctionType enum
+    //  -p <int> population size, > 0
+    //  -g <int> generations, > 0
     //
     while((c = getopt(argc, argv, "m:c:s:f:p:g:")) != -1) {
         switch(c) {
@@ -72,6 +79,7 @@ int main(int argc, char ** argv) {
         }
     }
 
+    // Check setup validity.
     if (mutation_rate == -1.0 ||
         crossover_rate == -1.0 ||
         seed == -1 ||
