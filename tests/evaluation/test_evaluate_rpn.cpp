@@ -1,12 +1,12 @@
 #define CATCH_CONFIG_MAIN
 #undef NDEBUG
 
-#include "../third-party/Catch2/single_include/catch2/catch.hpp"
+#include "../../third-party/Catch2/single_include/catch2/catch.hpp"
 
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "../gp/evaluation.h"
+#include "../../gp/evaluation.h"
 
 using std::cout; using std::endl;
 
