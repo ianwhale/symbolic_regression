@@ -3,28 +3,32 @@
 #include<stack>
 #include<string>
 #include<map>
+#include<cmath>
 
 using std::string;
 
 /**
  * Static class for handling evaluation.
  */
-class Evaluator {
-public:
+namespace Evaluation {
+    float evaluate_rpn(const string & rpn, const float & x);
+    void getAB(std::stack<float> & stack, float & a, float & b);
+
+    // Operation constants.
+    const string VAR = "x";
+    const string ADD = "+";
+    const string SUBTRACT = "-";
+    const string MULTIPLY = "*";
+    const string DIVIDE = "/";
+
     /**
      * Evaluates the rpn string at x.
      * @param  rpn string, reverse polish notation.
      * @param  x   float
      * @return     float
      */
-    static float evaluate_rpn(const string & rpn, float x) {
+    float evaluate_rpn(const string & rpn, const float & x) {
         std::stack<float> stack; // Intermediate value stack.
-
-        const string VAR = "x";
-        const string ADD = "+";
-        const string SUBTRACT = "-";
-        const string MULTIPLY = "*";
-        const string DIVIDE = "/";
 
         std::stringstream ss(rpn);
         string current_val;
@@ -36,19 +40,19 @@ public:
                 stack.push(x);
             }
             else if (current_val == ADD) {
-                Evaluator::getAB(&stack, a, b);
+                getAB(stack, a, b);
                 stack.push(a + b);
             }
             else if (current_val == SUBTRACT) {
-                Evaluator::getAB(&stack, a, b);
+                getAB(stack, a, b);
                 stack.push(b - a);
             }
             else if (current_val == MULTIPLY) {
-                Evaluator::getAB(&stack, a, b);
+                getAB(stack, a, b);
                 stack.push(b * a);
             }
             else if (current_val == DIVIDE) {
-                Evaluator::getAB(&stack, a, b);
+                getAB(stack, a, b);
                 stack.push((a == 0) ? 1 : b / a); // Protected division.
             }
             else {  // A consatnt value (not operator or variable).
@@ -65,10 +69,11 @@ public:
      * @param a     float &
      * @param b     float &
      */
-    static void getAB(std::stack<float> * stack, float & a, float & b) {
-        a = stack->top();
-        stack->pop();
-        b = stack->top();
-        stack->pop();
+    void getAB(std::stack<float> & stack, float & a, float & b) {
+        a = stack.top();
+        stack.pop();
+        b = stack.top();
+        stack.pop();
     }
-};
+
+}
