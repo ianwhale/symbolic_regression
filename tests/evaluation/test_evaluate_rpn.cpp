@@ -1,16 +1,15 @@
-#define CATCH_CONFIG_MAIN
-#undef NDEBUG
-
-#include "../../third-party/Catch2/single_include/catch2/catch.hpp"
-
-#include <iostream>
 #include <string>
 #include <cmath>
 #include "../../gp/evaluation.h"
+#include "../../third-party/Catch2/single_include/catch2/catch.hpp"
 
-using std::cout; using std::endl;
+#define EPSILON 1e-6
 
-bool float_eq(float a, float b) {return abs(a - b) < 1e-8;}
+#include<iostream>
+
+using namespace std;
+
+float abs_diff(float a, float b) { return abs(a - b); }
 
 /**
  * Test the formula: x * (x + 3)
@@ -41,10 +40,10 @@ TEST_CASE("RPN String: \"x 1 2 x * + * 10 x / -\"", "[unit]") {
     const string rpn = "x 1 2 x * + * 10 x / -";
 
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, 1.0f), -7.0f)
+        abs_diff(Evaluation::evaluate_rpn(rpn, 1.0f), -7.0f) < EPSILON
     );
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, 1.5f), -(2/3))
+        abs_diff(Evaluation::evaluate_rpn(rpn, 1.5f), -(2.0/3.0)) < EPSILON
     );
 }
 
@@ -55,11 +54,15 @@ TEST_CASE("RPN String: \"x x x * 2 / - x x * x * 3 / +\"", "[unit]") {
     const string rpn = "x x x * 2 / - x x * x * 3 / +";
 
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, 5.6), 48.4587)
+          abs_diff(Evaluation::evaluate_rpn(rpn, 1.0f), (5.0/6.0)) < EPSILON
     );
 
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, -1.449), -3.51291)
+        abs_diff(Evaluation::evaluate_rpn(rpn, (5.0/4.0)), (215.0/192.0)) < EPSILON
+    );
+
+    REQUIRE(
+        abs_diff(Evaluation::evaluate_rpn(rpn, -(17.0/9.0)), -(25891.0/4374.0)) < EPSILON
     );
 }
 
@@ -70,10 +73,10 @@ TEST_CASE("RPN String: \"x 1.25 *\"", "[unit]") {
     const string rpn = "x 1.25 *";
 
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, (2/3)), (5/6))
+        abs_diff(Evaluation::evaluate_rpn(rpn, (2.0/3.0)), (5.0/6.0)) < EPSILON
     );
 
     REQUIRE(
-        float_eq(Evaluation::evaluate_rpn(rpn, (5/8)), (25/32))
+        abs_diff(Evaluation::evaluate_rpn(rpn, (5.0/8.0)), (25.0/32.0)) < EPSILON
     );
 }
