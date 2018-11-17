@@ -14,13 +14,9 @@ using namespace std;
  */
 class Function {
 public:
-    virtual float operator()(float x);
-    pair<float, float> domain() {return make_pair(this->lower, this->upper);}
+    virtual float call(const float & x) const = 0;
+    virtual pair<float, float> domain() const = 0;
 
-protected:
-    Function(float _lower, float _upper) : lower(_lower), upper(_upper) {}
-    float lower;
-    float upper;
 };
 
 /**
@@ -28,8 +24,8 @@ protected:
  */
 class Log : public Function {
 public:
-    Log() : Function(-0.9999999, 1) {}
-    float operator()(float x) {return log(1 + x);}
+    inline float call(const float & x) const { return log(1 + x); }
+    inline pair<float, float> domain() const { return make_pair(-0.99999, 1); }
 };
 
 /**
@@ -37,8 +33,8 @@ public:
  */
 class Exp : public Function {
 public:
-    Exp() : Function(-10, 10) {}
-    float operator()(float x) {return exp(x);}
+    inline float call(const float & x) const { return exp(x); }
+    inline pair<float, float> domain() const { return make_pair(-10, 10); }
 };
 
 /**
@@ -46,8 +42,8 @@ public:
  */
 class Sin : public Function {
 public:
-    Sin() : Function(-10, 10) {}
-    float operator()(float x) {return sin(x);}
+    inline float call(const float & x) const { return sin(x); }
+    inline pair<float, float> domain() const { return make_pair(-10, 10); }
 };
 
 /**
@@ -55,8 +51,8 @@ public:
  */
 class Parabola : public Function {
 public:
-    Parabola() : Function(-100, 100) {}
-    float operator()(float x) {return (x + 1) * (x + 1) - 3;}
+    inline float call(const float & x) const { return (x + 1) * (x + 1) - 3; }
+    inline pair<float, float> domain() const { return make_pair(-100, 100); }
 };
 
 class FunctionFactory {
@@ -77,19 +73,19 @@ public:
      * @param const int type, one of the valid FunctionTypes.
      * @return Function
      */
-    static Function makeFunction(const int type) {
+    static shared_ptr<Function> makeFunction(const int type) {
         switch (type) {
             case LOG:
-                return Log();
+                return make_shared<Log>();
                 break;
             case EXP:
-                return Exp();
+                return make_shared<Exp>();
                 break;
             case SIN:
-                return Sin();
+                return make_shared<Sin>();
                 break;
             case PARABOLA:
-                return Parabola();
+                return make_shared<Parabola>();
                 break;
             default:
                 cout << "Invalid function type " << type << \
