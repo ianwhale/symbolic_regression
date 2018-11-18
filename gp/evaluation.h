@@ -127,4 +127,22 @@ namespace Evaluation {
 
         return sqrt(rmse / samples.size());
     }
+
+    /**
+     * Determine if a string is an operation.
+     * @param  s string
+     * @return   bool, true if s is an operation.
+     */
+    bool is_operation(const string & s) {
+        return s == ADD || s == SUBTRACT || s == MULTIPLY || s == DIVIDE;
+    }
+
+    /**
+     * Determine if a string represents a variable.
+     * @param  s string
+     * @return   bool, true if s is a variable.
+     */
+    bool is_variable(const string & s) {
+        return s == VAR;
+    }
 }
