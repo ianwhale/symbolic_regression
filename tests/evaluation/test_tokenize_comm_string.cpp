@@ -1,3 +1,7 @@
+#ifndef CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_MAIN
+#endif
+
 #include<string>
 #include<vector>
 #include "../../gp/evaluation.h"
