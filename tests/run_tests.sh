@@ -25,3 +25,5 @@ else
         compile_and_run_tests_in_dir $dir
     done
 fi
+
+rm a.out
