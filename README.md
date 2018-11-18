@@ -1,6 +1,6 @@
 # CSE822 Symbolic Regression Project
 
-A simple symbolic regression project using genetic programming, MPI, and OpenMP.
+A simple symbolic regression project using genetic programming, MPI, and OpenMP. This code makes heavy use of reverse polish notation (abbreviated rpn in the code; also known as post-fix notation) which is a simple way of representing a function so it can be evaluated on a stack: [see here for more](https://en.wikipedia.org/wiki/Reverse_Polish_notation).
 
 ## Compiling
 
