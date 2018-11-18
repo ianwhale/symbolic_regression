@@ -1,10 +1,16 @@
 #pragma once
 
-#include<string>
-#include<memory>
+#include<cmath>
 #include<stack>
+#include<memory>
+#include<string>
+#include<sstream>
+#include<iostream>
+#include "evaluation.h"
+
 
 using std::string; using std::make_shared; using std::shared_ptr;
+using Evaluation::is_operation; using Evaluation::is_variable;
 
 // Forward references for typedefs.
 class RPNNode; class RPNTree; class Individual;
@@ -39,10 +45,11 @@ public:
         this->tree = make_shared<RPNTree>(*(other.get_tree()));
     }
 
-    tree_ptr get_tree() const {return this->tree;}
+    tree_ptr get_tree() const { return this->tree; }
 
 private:
     tree_ptr tree = nullptr;
+    float fitness = HUGE_VALF;
 };
 
 
@@ -89,7 +96,7 @@ public:
      * Constructor, builds tree.
      * @param _rpn_string string, reverse polish notation string.
      */
-    RPNTree(string _rpn_string) : rpn_string(_rpn_string) { this->buildTree(); }
+    RPNTree(string _rpn_string) : rpn_string(_rpn_string) { this->build_tree(); }
 
     /**
      * Copy constructor.
@@ -118,22 +125,68 @@ public:
     }
 
     /**
+     * In order traversal on a tree.
+     * @param node node_ptr, current node.
+     * @param out  string,   output string.
+     */
+    static void in_order_traversal(node_ptr node, string & out) {
+        if (node != nullptr) {
+            if (! node->is_root() && is_operation(node->value)) {
+                out += "( ";
+            }
+
+            RPNTree::in_order_traversal(node->left, out);
+            out += node->value + " ";
+            RPNTree::in_order_traversal(node->right, out);
+
+            if (! node->is_root() && is_operation(node->value)) {
+                out += ") ";
+            }
+        }
+    }
+
+    /**
      * In order traversal of the tree.
      * @return string, representing the traversal (formatted with parentheses).
      */
-    string in_order() {}
+    string in_order() {
+        string out = "";
+        RPNTree::in_order_traversal(this->root, out);
+        return out;
+    }
+
+    /**
+     * Post order traversal on a tree.
+     * @param node current node.
+     * @param out  output string.
+     */
+    static void post_order_traversal(node_ptr node, string & out) {
+        if (node != nullptr) {
+            RPNTree::post_order_traversal(node->left, out);
+            RPNTree::post_order_traversal(node->right, out);
+            out += node->value + " ";
+        }
+    }
 
     /**
      * Post order traversal of the tree (this is just the rpn string).
      * @return string, represeting the traversal.
      */
-    string post_order() { return this->rpn_string; }
+    string post_order() {
+        string out = "";
+        RPNTree::post_order_traversal(this->root, out);
+        return out;
+    }
 
     /**
-     * Return the number of nodes in the
-     * @return [description]
+     * Return the number of nodes in the tree;
+     * @return int
      */
-    int num_nodes() {}
+    int num_nodes() {
+        string out = "";
+        RPNTree::post_order_traversal(this->root, out);
+        return out.length() / 2; // String will be twice as long due to spacing.
+    }
 
     node_ptr get_root() const { return this->root; }
     string get_rpn_string() const { return this->rpn_string; }
@@ -142,8 +195,54 @@ private:
     /**
      * Builds the tree based on the given reverse polish notation string.
      */
-    void buildTree() {}
+    void build_tree() {
+        std::stack<node_ptr> node_stack;
+
+        string current_val;
+        std::stringstream ss(this->rpn_string);
+
+        node_ptr a, b;
+        node_ptr parent;
+
+        while(getline(ss, current_val, ' ')) {
+            if (is_operation(current_val)) {
+                // Operation node, get two nodes and build a subtree.
+                get_ab(node_stack, a, b);
+                parent = make_shared<RPNNode>(current_val, b, a, nullptr);
+                a->parent = parent;
+                b->parent = parent;
+
+                node_stack.push(parent);
+            }
+            else {
+                // Variable or constant, push onto stack.
+                a = make_shared<RPNNode>();
+                a->value = current_val;
+
+                node_stack.push(a);
+            }
+        }
+        this->root = node_stack.top();
+    }
+
+    /**
+     * Get two values off the stack.
+     * @param stack stack<node_ptr> &
+     * @param a     node_ptr &
+     * @param b     node_ptr &
+     */
+    void get_ab(std::stack<node_ptr> & node_stack, node_ptr & a, node_ptr & b) {
+        a = node_stack.top();
+        node_stack.pop();
+        b = node_stack.top();
+        node_stack.pop();
+    }
 
     string rpn_string = "";
     node_ptr root = nullptr;
 };
+
+std::ostream & operator<<(std::ostream & os, const Individual & indv) {
+    os << indv.get_tree()->post_order() << endl;
+    return os;
+}
