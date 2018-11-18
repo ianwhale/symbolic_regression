@@ -4,9 +4,9 @@ A simple symbolic regression project using genetic programming, MPI, and OpenMP.
 
 ## Compiling
 
-TBA
+`mpic++ --std=c++11 main.cpp -fopenmp`
 
-## Command line
+## Running
 
 Compiled program takes a few arguments to be able to run.
 
