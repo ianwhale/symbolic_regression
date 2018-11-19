@@ -29,6 +29,9 @@ namespace Evaluation {
     const string MULTIPLY = "*";
     const string DIVIDE = "/";
 
+    // Number of samples to generate at each fitness evaluation.
+    const size_t NUM_SAMPLES = 100;
+
     /**
      * Evaluates the rpn string at x.
      * @param  rpn string, reverse polish notation.
@@ -110,18 +113,16 @@ namespace Evaluation {
      */
     float assign_rmse(const string & rpn,
                       const vector<float> & samples,
-                      shared_ptr<Function> f) {
+                      const vector<float> & ground_truth) {
         float rmse = 0; // Root mean squared error.
 
         #pragma omp parallel
         {
-            float truth, pred;  // Thread private variables to hold ground truth and prediction.
-
+            float diff; // Private thread variable to store differences.
             #pragma omp for reduction(+:rmse)
             for (int i = 0; i < samples.size(); i++) {
-                truth = f->call(samples[i]);
-                pred = evaluate_rpn(rpn, samples[i]);
-                rmse += (truth - pred) * (truth - pred);
+                diff = ground_truth[i] - evaluate_rpn(rpn, samples[i]);
+                rmse += diff * diff;
             }
         }
 
