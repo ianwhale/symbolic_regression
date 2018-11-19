@@ -1,76 +1,11 @@
 #include <memory>
 #include <string>
+#include "utils.h"
 #include "../../gp/individual.h"
 #include "../../third-party/Catch2/single_include/catch2/catch.hpp"
 
 
 using std::make_shared; using std::string;
-
-/**
- * Make a tree of specific structure for testing.
- *                  root
- *                 /    \
- *                1      6
- *               / \    / \
- *              2   3  7   8
- *                 / \
- *                4   5
- * In-order traversal: 2, 1, 4, 3, 5, root, 7, 8, 6.
- * @return node_ptr, root node.
- */
-node_ptr make_test_tree() {
-    node_ptr root = make_shared<RPNNode>();
-    root->value = "root";
-
-    // Build left subtree first.
-    node_ptr node_1 = make_shared<RPNNode>();
-    node_1->value = "1";
-    node_1->parent = root;
-
-    root->left = node_1;
-
-    node_ptr node_2 = make_shared<RPNNode>();
-    node_2->value = "2";
-    node_2->parent = node_1;
-
-    node_ptr node_3 = make_shared<RPNNode>();
-    node_3->value = "3";
-    node_3->parent = node_1;
-
-    node_1->left = node_2;
-    node_1->right = node_3;
-
-    node_ptr node_4 = make_shared<RPNNode>();
-    node_4->value = "4";
-    node_4->parent = node_3;
-
-    node_ptr node_5 = make_shared<RPNNode>();
-    node_5->value = "5";
-    node_5->parent = node_3;
-
-    node_3->left = node_4;
-    node_3->right = node_5;
-
-    // Build right subtree.
-    node_ptr node_6 = make_shared<RPNNode>();
-    node_6->value = "6";
-    node_6->parent = root;
-
-    root->right = node_6;
-
-    node_ptr node_7 = make_shared<RPNNode>();
-    node_7->value = "7";
-    node_7->parent = node_6;
-
-    node_ptr node_8 = make_shared<RPNNode>();
-    node_8->value = "8";
-    node_8->parent = node_6;
-
-    node_6->left = node_7;
-    node_6->right = node_8;
-
-    return root;
-}
 
 /**
  * Traverse a tree in order.
@@ -85,6 +20,18 @@ void in_order_traversal(node_ptr node, string & out) {
     }
 }
 
+/**
+ * Takes two of the same trees and REQUIRE that they are different.
+ * @param node_a node_ptr
+ * @param node_b node_ptr
+ */
+void in_order_requires(node_ptr node_a, node_ptr node_b) {
+    if (node_a != nullptr) {
+        in_order_requires(node_a->left, node_b->left);
+        REQUIRE(node_a != node_b);
+        in_order_requires(node_a->right, node_b->right);
+    }
+}
 
 TEST_CASE("Copy constructor", "[unit]") {
     const string expected = "2 1 4 3 5 root 7 6 8 ";
@@ -104,4 +51,7 @@ TEST_CASE("Copy constructor", "[unit]") {
     in_order_traversal(indv_copy.get_tree()->get_root(), post_copy);
 
     REQUIRE(pre_copy == post_copy);
+
+    // Be sure everything if different.
+    in_order_requires(indv_copy.get_tree()->get_root(), indv.get_tree()->get_root());
 }
