@@ -1,14 +1,9 @@
 #include <random>
-#include <iostream>
-#include <functional>
 #include "../../gp/evolution.h"
 #include "../../gp/individual.h"
 #include "../../third-party/Catch2/single_include/catch2/catch.hpp"
 
-using std::cout; using std::endl;
-
 using std::mt19937;
-using std::uniform_int_distribution;
 using Evolution::crossover;
 
 TEST_CASE("Test crossover \"5 x 7 - *\" and \"x 3 +\"", "[unit]") {
@@ -27,8 +22,7 @@ TEST_CASE("Test crossover \"5 x 7 - *\" and \"x 3 +\"", "[unit]") {
     REQUIRE(expected == child->get_tree()->get_rpn_string());
 }
 
-
-TEST_CASE("Test crossover \"x 4 5 + * x 8 / +\" \"5 x 7 - *\"") {
+TEST_CASE("Test crossover \"x 4 5 + * x 8 / +\" and \"5 x 7 - *\"") {
     mt19937 engine(4);
 
     const string rpn_a = "x 4 5 + * x 8 / +";

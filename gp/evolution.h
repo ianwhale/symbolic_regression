@@ -2,6 +2,7 @@
 
 #include <random>
 #include <memory>
+#include <string>
 #include <functional>
 #include "evaluation.h"
 #include "individual.h"
@@ -11,9 +12,10 @@ using std::make_shared;
 using std::mt19937;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
-using Evaluation::is_operation; using Evaluation::is_variable;
 
 namespace Evolution {
+
+    uniform_real_distribution<float> EPHEMERAL_RANDOM_CONSTANTS(-10, 10);
 
     /**
      * Cross parent_a with parent_b. Produces one new individual.
@@ -54,5 +56,35 @@ namespace Evolution {
         }
 
         return copy_a;
+    }
+
+    /**
+     * Carry out a point mutation on an individual.
+     * @param  indv   indv_ptr
+     * @param  engine mt19937, Mersenne twister random engine.
+     * @return        indv_ptr, pointer to the same individual, not a copy.
+     */
+    indv_ptr mutation(indv_ptr indv, mt19937 & engine) {
+        int size = indv->get_tree()->num_nodes();
+        uniform_int_distribution<int> dist_nodes(0, size - 1);
+        uniform_real_distribution<float> coin_flip(0, 1);
+        node_ptr point = indv->get_tree()->node_at(dist_nodes(engine));
+
+        // If the node is an operation, replace with an different operation.
+        if (Evaluation::is_operation(point->value)) {
+            point->value = Evaluation::get_random_operation(point->value, engine);
+        }
+        // If node is a constant or the variable, replace it with a constant
+        // or the variable with 50% probability of either.
+        else {
+            if (coin_flip(engine) < 0.5) {
+                point->value = Evaluation::VAR;
+            }
+            else {
+                point->value = std::to_string(EPHEMERAL_RANDOM_CONSTANTS(engine));
+            }
+        }
+
+        return indv;
     }
 }

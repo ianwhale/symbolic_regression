@@ -6,6 +6,7 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<random>
 #include<sstream>
 
 #include "function.h"
@@ -28,6 +29,25 @@ namespace Evaluation {
     const string SUBTRACT = "-";
     const string MULTIPLY = "*";
     const string DIVIDE = "/";
+
+    const vector<string> OPERATIONS = {ADD, SUBTRACT, MULTIPLY, DIVIDE};
+
+    /**
+     * Return a random operation not equal to the given operation.
+     * @param  operation string
+     * @param  engine    mt19937, Mersenne twister random engine.
+     * @return           string
+     */
+    string get_random_operation(string operation, std::mt19937 engine) {
+        std::uniform_int_distribution<int> operation_dist(0, OPERATIONS.size() - 1);
+        string new_operation = OPERATIONS[operation_dist(engine)];
+
+        while (new_operation == operation) {
+            new_operation = OPERATIONS[operation_dist(engine)];
+        }
+
+        return new_operation;
+    }
 
     // Number of samples to generate at each fitness evaluation.
     const size_t NUM_SAMPLES = 100;
