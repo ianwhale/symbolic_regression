@@ -20,39 +20,6 @@ typedef shared_ptr<RPNTree> tree_ptr;
 typedef shared_ptr<Individual> indv_ptr;
 
 
-class Individual {
-public:
-    /**
-     * Constructor with rpn string.
-     * @param _rpn_string string, reverse polish notation function.
-     */
-    Individual(string _rpn_string) {
-        this->tree = make_shared<RPNTree>(_rpn_string);
-    }
-
-    /**
-     * Constructor with tree pointer.
-     * @param _tree tree_ptr, pointer to tree representing RPN string.
-     */
-    Individual(tree_ptr _tree) : tree(_tree) {}
-
-    /**
-     * Copy constructor.
-     * @param other Individual, to be copied.
-     */
-    Individual(const Individual & other) {
-        // Make shared pointer by copy of the other Individual's RPNTree.
-        this->tree = make_shared<RPNTree>(*(other.get_tree()));
-    }
-
-    tree_ptr get_tree() const { return this->tree; }
-
-private:
-    tree_ptr tree = nullptr;
-    float fitness = HUGE_VALF;
-};
-
-
 /**
  * Struct to represent a RPNTree's nodes.
  */
@@ -96,14 +63,13 @@ public:
      * Constructor, builds tree.
      * @param _rpn_string string, reverse polish notation string.
      */
-    RPNTree(string _rpn_string) : rpn_string(_rpn_string) { this->build_tree(); }
+    RPNTree(const string & rpn_string) { this->build_tree(rpn_string); }
 
     /**
      * Copy constructor.
      * @param other RPNTree, to be copied.
      */
     RPNTree(const RPNTree & other) {
-        this->rpn_string = other.rpn_string;
         this->root = copy_of(other.root, nullptr);
     }
 
@@ -149,7 +115,7 @@ public:
      * In order traversal of the tree.
      * @return string, representing the traversal (formatted with parentheses).
      */
-    string in_order() {
+    string in_order() const {
         string out = "";
         RPNTree::in_order_traversal(this->root, out);
         return out;
@@ -172,7 +138,7 @@ public:
      * Post order traversal of the tree (this is just the rpn string).
      * @return string, represeting the traversal.
      */
-    string post_order() {
+    string post_order() const {
         string out = "";
         RPNTree::post_order_traversal(this->root, out);
         return out;
@@ -183,23 +149,88 @@ public:
      * @return int
      */
     int num_nodes() {
-        string out = "";
-        RPNTree::post_order_traversal(this->root, out);
-        return out.length() / 2; // String will be twice as long due to spacing.
+        string out = this->post_order();
+
+        string current_val;
+        std::stringstream ss(out);
+        int count = 0;
+
+        while(getline(ss, current_val, ' ')) {
+            count++;
+        }
+
+        return count;
+    }
+
+
+
+    /**
+     * Returns a pointer to the node at an index.
+     * More specifically, this would be the index of a symbol in the RPN string.
+     * Source:
+     *  https://articles.leetcode.com/binary-tree-post-order-traversal/
+     * @param  idx int
+     * @return     node_ptr | nullptr, nullptr will be returned in error.
+     */
+    node_ptr node_at(int idx) {
+        if (this->root == nullptr) {
+            return nullptr;
+        }
+
+        int count = 0;
+        std::stack<node_ptr> node_stack;
+        node_ptr current = this->root;
+        node_ptr previous = nullptr;
+
+        //
+        // Do a post order traversal iteratively so we can stop at the desired node.
+        //
+        node_stack.push(current);
+        while (! node_stack.empty()) {
+            current = node_stack.top();
+
+            if (previous == nullptr
+                || previous->left == current
+                || previous->right == current) {
+
+                if (current->left != nullptr) {
+                    node_stack.push(current->left);
+                }
+                else if (current->right != nullptr) {
+                    node_stack.push(current->right);
+                }
+            }
+            else if (current->left == previous) {
+                if (current->right != nullptr) {
+                    node_stack.push(current->right);
+                }
+            }
+            else {
+                if (count == idx) {
+                    return current;
+                }
+                count++;
+                node_stack.pop();
+            }
+
+            previous = current;
+        }
+
+        return nullptr;
     }
 
     node_ptr get_root() const { return this->root; }
-    string get_rpn_string() const { return this->rpn_string; }
+    string get_rpn_string() const { return this->post_order(); }
 
 private:
     /**
      * Builds the tree based on the given reverse polish notation string.
      */
-    void build_tree() {
+    void build_tree(const string & rpn_string) {
         std::stack<node_ptr> node_stack;
 
         string current_val;
-        std::stringstream ss(this->rpn_string);
+        std::stringstream ss(rpn_string);
 
         node_ptr a, b;
         node_ptr parent;
@@ -238,11 +269,55 @@ private:
         node_stack.pop();
     }
 
-    string rpn_string = "";
     node_ptr root = nullptr;
 };
 
+class Individual {
+public:
+    /**
+     * Constructor with rpn string.
+     * @param _rpn_string string, reverse polish notation function.
+     */
+    Individual(string _rpn_string) {
+        this->tree = make_shared<RPNTree>(_rpn_string);
+    }
+
+    /**
+     * Constructor with tree pointer.
+     * @param _tree tree_ptr, pointer to tree representing RPN string.
+     */
+    Individual(tree_ptr _tree) : tree(_tree) {}
+
+    /**
+     * Copy constructor.
+     * @param other Individual, to be copied.
+     */
+    Individual(const Individual & other) {
+        // Make shared pointer by copy of the other Individual's RPNTree.
+        this->tree = make_shared<RPNTree>(*(other.get_tree()));
+    }
+
+    /**
+     * Returns a pointer to the node at an index.
+     * Index refers to the order the node is found in a traversal of the tree.
+     * @param  idx int
+     * @return     node_ptr
+     */
+    node_ptr node_at(int idx) {
+        return this->tree->node_at(idx);
+    }
+
+    tree_ptr get_tree() const { return this->tree; }
+
+private:
+    tree_ptr tree = nullptr;
+    float fitness = HUGE_VALF;
+};
+
+/**
+ * Ostream definition for printing individuals.
+ */
 std::ostream & operator<<(std::ostream & os, const Individual & indv) {
-    os << indv.get_tree()->post_order() << endl;
+    os << indv.get_tree()->get_rpn_string() << endl;
     return os;
 }
