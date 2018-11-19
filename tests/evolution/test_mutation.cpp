@@ -32,6 +32,7 @@ TEST_CASE("Test mutation robustness, mutate a bunch", "[unit]") {
 
     for (int i = 0; i < 1000; i++) {
         Evolution::mutation(indv, engine);
-        indv->get_tree()->get_rpn_string(); // Traverse to ensure the tree isn't broken.
+        // Make sure the tree isn't broken.
+        REQUIRE(indv->get_tree()->num_nodes() == 9);
     }
 }
