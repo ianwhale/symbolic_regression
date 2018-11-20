@@ -205,7 +205,7 @@ namespace Evolution {
     }
 
     /**
-     * Make an operation node.
+     * Make a terminal node.
      * @param  engine mt19937, Mersenne Twister random generator.
      * @param  parent node_ptr
      * @return        node_ptr
