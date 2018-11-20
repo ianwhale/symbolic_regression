@@ -1,4 +1,5 @@
 #include <random>
+#include "utils.h"
 #include "../../gp/evolution.h"
 #include "../../gp/individual.h"
 #include "../../third-party/Catch2/single_include/catch2/catch.hpp"
@@ -7,6 +8,8 @@ using std::mt19937;
 using Evolution::crossover;
 
 TEST_CASE("Test crossover \"5 x 7 - *\" and \"x 3 +\"", "[unit]") {
+    reset_distributions();
+
     mt19937 engine(0);
 
     const string rpn_a = "5 x 7 - *";
@@ -23,6 +26,8 @@ TEST_CASE("Test crossover \"5 x 7 - *\" and \"x 3 +\"", "[unit]") {
 }
 
 TEST_CASE("Test crossover \"x 4 5 + * x 8 / +\" and \"5 x 7 - *\"") {
+    reset_distributions();
+
     mt19937 engine(4);
 
     const string rpn_a = "x 4 5 + * x 8 / +";
