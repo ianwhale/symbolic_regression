@@ -5,24 +5,22 @@
 #include "../../gp/evaluation.h"
 #include "../../third-party/Catch2/single_include/catch2/catch.hpp"
 
+#include <iostream>
+using std::cout; using std::endl;
+
 using std::mt19937;
-using Evolution::crossover;
 
 TEST_CASE("Test mutation on: \"5 x 7 - *\"", "[unit]") {
-    reset_distributions();
-
     const string rpn = "5 x 7 - *";
     indv_ptr indv = make_shared<Individual>(rpn);
     mt19937 engine(0);
 
     // Mutation throws in a new random constant.
-    const string expected = "5 x 6.885315 - * ";
+    const string expected = "5 x 1.856892 - * ";
     REQUIRE(Evolution::mutation(indv, engine)->get_tree()->get_rpn_string() == expected);
 }
 
 TEST_CASE("Test mutation on: \"x 4 5 + * x 8 / +\"", "[unit]") {
-    reset_distributions();
-
     const string rpn = "x 4 5 + * x 8 / +";
     indv_ptr indv = make_shared<Individual>(rpn);
     mt19937 engine(0);
@@ -32,18 +30,19 @@ TEST_CASE("Test mutation on: \"x 4 5 + * x 8 / +\"", "[unit]") {
 }
 
 TEST_CASE("Test mutation robustness, mutate a bunch", "[unit]") {
-    reset_distributions();
-
     const string rpn = "x 4 5 + * x 8 / +";
     indv_ptr indv = make_shared<Individual>(rpn);
     mt19937 engine(0);
 
     const float test_val = 1.0;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10000; i++) {
         Evolution::mutation(indv, engine);
         // Make sure the tree isn't broken.
         REQUIRE(indv->get_tree()->num_nodes() == 9);
-        Evaluation::evaluate_rpn(indv->get_tree()->get_rpn_string(), test_val);
+
+        REQUIRE_NOTHROW(
+            Evaluation::evaluate_rpn(indv->get_tree()->get_rpn_string(), test_val)
+        );
     }
 }

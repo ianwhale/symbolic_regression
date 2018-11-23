@@ -4,15 +4,6 @@
 #include "../../gp/evolution.h"
 
 /**
- * Resets the static distributions in the Evolution namespace.
- */
-void reset_distributions() {
-    Evolution::COIN_FLIP.reset();
-    Evolution::EPHEMERAL_RANDOM_CONSTANTS.reset();
-    Evolution::RAND.reset();
-}
-
-/**
  * Get the depth of a tree starting at some node.
  * @param current node_ptr
  * @param depth   int

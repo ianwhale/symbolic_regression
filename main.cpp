@@ -10,6 +10,7 @@ const char SEED = 's';
 const char FUNCTION = 'f';
 const char POPULATION_SIZE = 'p';
 const char GENERATIONS = 'g';
+const char OUTPUT = 'o';
 
 using namespace std;
 
@@ -20,7 +21,8 @@ int main(int argc, char ** argv) {
     int c;
     int population_size = -1;
     int generations = -1;
-    FunctionFactory::FunctionType function = FunctionFactory::FunctionType::INVALID;
+    int function = -1;
+    string output_dir = "";
 
     //
     // Get command line arguments.
@@ -32,7 +34,7 @@ int main(int argc, char ** argv) {
     //  -p <int> population size, > 0
     //  -g <int> generations, > 0
     //
-    while((c = getopt(argc, argv, "m:c:s:f:p:g:")) != -1) {
+    while((c = getopt(argc, argv, "m:c:s:f:p:g:o:")) != -1) {
         switch(c) {
             case MUTATION_RATE:
                 mutation_rate = stof(optarg);
@@ -73,6 +75,10 @@ int main(int argc, char ** argv) {
                 function = (FunctionFactory::FunctionType)stoi(optarg);
                 break;
 
+            case OUTPUT:
+                output_dir = optarg;
+                break;
+
             default:
                 cerr << "Invalid usage commnand line arguments, exiting..." << endl;
                 return 1;
@@ -85,7 +91,8 @@ int main(int argc, char ** argv) {
         seed == -1 ||
         function == FunctionFactory::FunctionType::INVALID ||
         population_size == -1 ||
-        generations == -1) {
+        generations == -1 ||
+        output_dir == "") {
             cerr << "***********************************" << endl;
             cerr << "*Invalid configuration, exiting...*" << endl;
             cerr << "***********************************" << endl;
@@ -93,8 +100,9 @@ int main(int argc, char ** argv) {
     }
 
     // Construct the driver and start computation.
-    Driver driver = Driver(mutation_rate, crossover_rate,
-                    seed, function, population_size, generations);
-    driver.evolve();
+    Driver driver(mutation_rate, crossover_rate, seed, function,
+                           population_size, generations, output_dir);
+
+    driver.evolve(argc, argv);
     return 0;
 }

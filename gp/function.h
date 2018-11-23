@@ -73,7 +73,7 @@ public:
      * @param const int type, one of the valid FunctionTypes.
      * @return Function
      */
-    static shared_ptr<Function> makeFunction(const int type) {
+    static shared_ptr<Function> make_function(const int type) {
         switch (type) {
             case LOG:
                 return make_shared<Log>();

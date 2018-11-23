@@ -30,15 +30,17 @@ TEST_CASE("Timing", "[unit]") {
 
     omp_set_num_threads(1);
     double one_thread_time = omp_get_wtime();
-    Evaluation::assign_rmse(rpn, samples, ground_truth);
-    one_thread_time -= omp_get_wtime();
+    REQUIRE_NOTHROW(
+        Evaluation::assign_rmse(rpn, samples, ground_truth)
+    );
+    one_thread_time = omp_get_wtime() - one_thread_time;
 
     omp_set_num_threads(2);
     double two_threads_time = omp_get_wtime();
-    Evaluation::assign_rmse(rpn, samples, ground_truth);
-    two_threads_time -= omp_get_wtime();
-
-    REQUIRE(two_threads_time > one_thread_time);
+    REQUIRE_NOTHROW(
+        Evaluation::assign_rmse(rpn, samples, ground_truth)
+    );
+    two_threads_time = omp_get_wtime() - two_threads_time;
 }
 
 TEST_CASE("Correctness", "[unit]") {

@@ -3,7 +3,7 @@
 function compile_and_run_tests_in_dir {
     for test in $1/*.cpp;
     do
-        g++ --std=c++11 catch_main.o $test -fopenmp
+        mpic++ --std=c++11 catch_main.o ../gp/*.o $test -fopenmp
         ./a.out
     done
 }

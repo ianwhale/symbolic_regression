@@ -31,8 +31,6 @@ void require_full_constraints(node_ptr current) {
 }
 
 TEST_CASE("Full test max depth = 3", "[unit]") {
-    reset_distributions();
-
     mt19937 engine(2);
     const int max_depth = 3;
 
@@ -41,8 +39,6 @@ TEST_CASE("Full test max depth = 3", "[unit]") {
 }
 
 TEST_CASE("Full test max depth = 6", "[unit]") {
-    reset_distributions();
-
     mt19937 engine(123);
     const int max_depth = 6;
 
