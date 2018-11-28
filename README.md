@@ -4,7 +4,7 @@ A simple symbolic regression project using genetic programming, MPI, and OpenMP.
 
 ## Compiling
 
-Run `mpic++ --std=c++11 main.cpp -fopenmp` or just use `make`.
+Run  `make`.
 
 ## Running
 
@@ -19,4 +19,4 @@ Compiled program takes a few arguments to be able to run.
 -g <int> generations, > 0
 ```
 
-Each must be provided, no default values are hard coded.
+Each must be provided, no default values are hard coded. See `simple_run.sh` for an example.
