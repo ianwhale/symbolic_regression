@@ -1,3 +1,4 @@
+#include<set>
 #include<cmath>
 #include<stack>
 #include<memory>
@@ -145,21 +146,29 @@ string RPNTree::post_order() const {
 }
 
 /**
+ * Counts the number of nodes.
+ * @param  node node_ptr, current node.
+ * @return      int
+ */
+int num_nodes_recursive(const node_ptr node) {
+    int count = 1;
+
+    if (node->left != nullptr) {
+        count += num_nodes_recursive(node->left);
+    }
+    if (node->right != nullptr) {
+        count += num_nodes_recursive(node->right);
+    }
+
+    return count;
+}
+
+/**
  * Return the number of nodes in the tree;
  * @return int
  */
 int RPNTree::num_nodes() {
-    string out = this->post_order();
-
-    string current_val;
-    std::stringstream ss(out);
-    int count = 0;
-
-    while(getline(ss, current_val, ' ')) {
-        count++;
-    }
-
-    return count;
+    return num_nodes_recursive(this->root);
 }
 
 
