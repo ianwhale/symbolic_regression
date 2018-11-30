@@ -29,34 +29,33 @@ using std::string;
  */
 void Logger::log(std::shared_ptr<Population> population, const int & current_generation,
          const double & evaluation_time) {
+    // Gather summary statistics.
+    float fit_sum = 0;
+    float fit_sumsq = 0; // Sum of squares.
+    float fitness = 0;   // Temp variable.
+    size_t n = population->get_length();
 
-     // Gather summary statistics.
-     float fit_sum = 0;
-     float fit_sumsq = 0; // Sum of squares.
-     float fitness = 0;   // Temp variable.
-     size_t n = population->get_length();
+    int node_sum = 0;
+    int node_sumsq = 0;
+    int max_nodes = -1;
+    int min_nodes = 0x7fffffff; // Max signed int.
+    vector<int> nodes(population->get_length(), 0);
 
-     int node_sum = 0;
-     int node_sumsq = 0;
-     int max_nodes = -1;
-     int min_nodes = 0x7fffffff; // Max signed int.
-     vector<int> nodes(population->get_length(), 0);
+    for (size_t i = 0; i < population->get_length(); i++) {
+        nodes[i] = (*population)[i]->get_tree()->num_nodes();
+        node_sum += nodes[i];
+        node_sumsq += nodes[i] * nodes[i];
 
-     for (size_t i = 0; i < population->get_length(); i++) {
-         fitness = (*population)[i]->get_fitness();
-         fit_sum += fitness;
-         fit_sumsq += fitness * fitness;
+        fitness = (*population)[i]->get_fitness() / nodes[i]; // Divide by nodes to get RMSE.
+        fit_sum += fitness;
+        fit_sumsq += fitness * fitness;
 
-         nodes[i] = (*population)[i]->get_tree()->num_nodes();
-         node_sum += nodes[i];
-         node_sumsq += nodes[i] * nodes[i];
-
-         if (nodes[i] > max_nodes) {
-             max_nodes = nodes[i];
-         }
-         if (nodes[i] < min_nodes) {
-             min_nodes = nodes[i];
-         }
+        if (nodes[i] > max_nodes) {
+         max_nodes = nodes[i];
+        }
+        if (nodes[i] < min_nodes) {
+         min_nodes = nodes[i];
+        }
      }
 
      float fit_stdev = n * fit_sumsq - (fit_sum * fit_sum);
@@ -157,7 +156,7 @@ void Logger::make_unique_output_names() {
 
     // Write the csv header to the log file.
     string log_header =
-        "generation,max_fitness,min_fitness,mean_fitness,fitness_std,median_fitness,max_nodes,min_nodes,mean_nodes,nodes_std,median_nodes,total_nodes,evaluation_time";
+        "generation,max_rmse,min_rmse,mean_rmse,rmse_std,median_rmse,max_nodes,min_nodes,mean_nodes,nodes_std,median_nodes,total_nodes,evaluation_time";
 
     ofstream log_file;
     log_file.open(this->log_name);
