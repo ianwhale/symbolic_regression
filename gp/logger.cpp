@@ -93,8 +93,8 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
      ofstream log_file;
      log_file.open(this->log_name, std::ios::app);
      log_file << current_generation << ","
-              << best->get_fitness() << ","
-              << worst->get_fitness() << ","
+              << best->get_fitness() / best->get_tree()->num_nodes() << ","
+              << worst->get_fitness() / best->get_tree()->num_nodes() << ","
               << fit_sum / n << ","
               << fit_stdev << ","
               << fit_median << ","
