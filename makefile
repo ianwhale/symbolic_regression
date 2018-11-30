@@ -1,6 +1,6 @@
 # Declaration of variables
 CC = mpic++
-CC_FLAGS = --std=c++11
+CC_FLAGS = --std=c++11 -fopenmp -O3
 
 # File names
 EXEC = run.out
