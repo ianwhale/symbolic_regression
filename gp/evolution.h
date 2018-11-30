@@ -13,17 +13,17 @@ typedef std::shared_ptr<RPNNode> node_ptr;
 typedef std::shared_ptr<Individual> indv_ptr;
 
 struct Evolution {
-    static double COIN_FLIP(mt19937 engine) {
+    static double COIN_FLIP(mt19937 & engine) {
         bernoulli_distribution cf(0.5);
         return cf(engine);
     }
 
-    static double EPHEMERAL_RANDOM_CONSTANTS(mt19937 engine) {
+    static double EPHEMERAL_RANDOM_CONSTANTS(mt19937 & engine) {
         uniform_real_distribution<float> erc(-10, 10);
         return erc(engine);
     }
 
-    static double RAND(mt19937 engine) {
+    static double RAND(mt19937 & engine) {
         uniform_real_distribution<float> r(0, 1);
         return r(engine);
     }

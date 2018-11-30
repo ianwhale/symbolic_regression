@@ -9,6 +9,9 @@
 #include "population.h"
 #include "evolution.h"
 
+#include <iostream>
+using std::cout; using std::endl;
+
 using std::make_shared;
 using std::mt19937;
 using std::uniform_int_distribution;
@@ -120,9 +123,8 @@ node_ptr Evolution::grow_recursion(int max_depth, mt19937 & engine,
         // There are 4 operations and 2 terminal nodes.
         // Hence, operations should have a 2/3 chance of being picked and
         // terminal nodes should only have a 1/3 chance.
-
         // Operation node.
-        if (RAND(engine) < (2.0/3.0)) {
+        if (current_depth == 1 || RAND(engine) < (2.0/3.0)) {
             new_node = make_operation(engine, parent);
 
             new_node->left = grow_recursion(max_depth, engine,
