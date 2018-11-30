@@ -35,7 +35,7 @@ Driver::Driver(float _mutation_rate, float _crossover_rate, int _seed, int _func
              function(_function), root_engine(_seed),
              population_size(_population_size),
              generations(_generations) {
-    this->logger = new Logger(_output_dir);
+    this->logger = new Logger(_output_dir, _seed);
 }
 
 

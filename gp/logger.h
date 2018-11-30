@@ -12,7 +12,8 @@ public:
 
     const int ARCHIVE_INTERVAL = 50;
 
-    Logger(const string & _output_dir) : output_dir(_output_dir) {
+    Logger(const string & _output_dir, const int & _seed) :
+        output_dir(_output_dir), seed(_seed) {
         this->make_dir();
         this->make_unique_output_names();
     }
@@ -23,6 +24,7 @@ public:
              const double & evaluation_time);
 
 private:
+    int seed;               // Random seed of master process.
     string output_dir;      // Directory to output below files.
     string archive_name;    // Archive, stores population every so often.
     string log_name;        // Log, stores population info every generation.

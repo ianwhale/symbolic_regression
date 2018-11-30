@@ -136,8 +136,8 @@ void Logger::make_dir() {
 void Logger::make_unique_output_names() {
     struct stat sb;
 
-    string archive = this->output_dir + "/" + "archive";
-    string log = this->output_dir + "/" + "log";
+    string archive = this->output_dir + "/" + "archive" + std::to_string(this->seed);
+    string log = this->output_dir + "/" + "log" + std::to_string(this->seed);
 
     int unique_id = 1;
 
@@ -148,11 +148,11 @@ void Logger::make_unique_output_names() {
     }
     // Output files do exist, make unique names.
     else {
-        while (access((log + std::to_string(unique_id) + ".csv").c_str(), F_OK) != -1) {
+        while (access((log + "_" + std::to_string(unique_id) + ".csv").c_str(), F_OK) != -1) {
             unique_id++;
         }
-        this->archive_name = archive + std::to_string(unique_id) + ".csv";
-        this->log_name = log + std::to_string(unique_id) + ".csv";
+        this->archive_name = archive + "_" + std::to_string(unique_id) + ".csv";
+        this->log_name = log + "_" + std::to_string(unique_id) + ".csv";
     }
 
     // Write the csv header to the log file.
