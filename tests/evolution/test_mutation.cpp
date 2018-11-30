@@ -16,7 +16,7 @@ TEST_CASE("Test mutation on: \"5 x 7 - *\"", "[unit]") {
     mt19937 engine(0);
 
     // Mutation throws in a new random constant.
-    const string expected = "5 x 1.856892 - * ";
+    const string expected = "5 x 6.885315 - * ";
     REQUIRE(Evolution::mutation(indv, engine)->get_tree()->get_rpn_string() == expected);
 }
 

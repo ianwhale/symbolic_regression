@@ -34,6 +34,7 @@ TEST_CASE("Full test max depth = 3", "[unit]") {
     mt19937 engine(2);
     const int max_depth = 3;
 
+
     indv_ptr indv = Evolution::full(max_depth, engine);
     require_full_constraints(indv->get_tree()->get_root());
 }
@@ -41,6 +42,7 @@ TEST_CASE("Full test max depth = 3", "[unit]") {
 TEST_CASE("Full test max depth = 6", "[unit]") {
     mt19937 engine(123);
     const int max_depth = 6;
+
 
     indv_ptr indv = Evolution::full(max_depth, engine);
     require_full_constraints(indv->get_tree()->get_root());
