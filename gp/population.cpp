@@ -1,13 +1,17 @@
+#include<cmath>
 #include<vector>
 #include<random>
 #include<memory>
+#include<algorithm>
 
 #include "evolution.h"
 #include "individual.h"
 #include "population.h"
 
 using std::mt19937;
-
+using std::shared_ptr;
+using std::make_shared;
+using std::vector;
 
 /**
  * Randomly initialize a population with the ramped half-and-half method.
@@ -50,4 +54,69 @@ void Population::initialize(mt19937 & engine, int min_depth, int max_depth) {
     }
 }
 
-void Population::update(mt19937 engine) {}
+/**
+ * Sorts the population.
+ */
+void Population::sort() {
+    std::sort(this->population.begin(), this->population.end(),
+        [](const indv_ptr & a, const indv_ptr & b) -> bool
+        {
+            return a->get_fitness() > b->get_fitness();
+        });
+}
+
+/**
+ * Update the population based on fitness. This is the reproduction step.
+ * @param engine mt19937
+ */
+void Population::update(mt19937 & engine, const float & crossover_rate,
+        const float & mutation_rate) {
+    float best_fitness = HUGE_VALF;
+    size_t best_index = 0;
+    vector<indv_ptr> new_population;
+
+    // We want an elitism of 1, so find the best individual and save it.
+    for (size_t i = 0; i < this->length; i++) {
+        if (this->population[i]->get_fitness() < best_fitness) {
+            best_fitness = this->population[i]->get_fitness();
+            best_index = i;
+        }
+    }
+
+    new_population.push_back(this->population[best_index]);
+
+    indv_ptr parent_a = nullptr;
+    indv_ptr parent_b = nullptr;
+    indv_ptr child = nullptr;
+
+    // Loop minus 1 to account for elitism.
+    for (size_t i = 0; i < this->length - 1; i++) {
+        parent_a = Evolution::tournament_selection(this, engine,
+            this->TOURNAMENT_SIZE);
+
+        while (parent_b == nullptr || parent_a == parent_b) {
+            parent_b = Evolution::tournament_selection(this, engine,
+                this->TOURNAMENT_SIZE);
+        }
+
+        // Should we do crossover?
+        if (Evolution::RAND(engine) < crossover_rate) {
+            child = Evolution::crossover(parent_a, parent_b, engine);
+        }
+        else { // If not, make a copy.
+            child = make_shared<Individual>(*parent_a);
+        }
+
+        // Should we do mutation?
+        if (Evolution::RAND(engine) < mutation_rate) {
+            child = Evolution::mutation(child, engine);
+        }
+
+        new_population.push_back(child);
+    }
+
+    // Swap in the new pointers.
+    for (size_t i = 0; i < this->length; i++) {
+        this->population[i] = new_population[i];
+    }
+}
