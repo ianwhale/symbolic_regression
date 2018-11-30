@@ -2,9 +2,12 @@
 
 #include <string>
 #include <random>
+#include <vector>
+#include <memory>
 
 class Logger;
-
+class Individual;
+class Function;
 
 struct OutgoingPayload {
     int seed; // Random seed to generate random samples with.
@@ -34,10 +37,14 @@ public:
            int _population_size, int _generations, std::string _output_dir);
 
     void evolve(int argc, char ** argv);
-
+    void generate_samples(std::vector<float> & samples, std::vector<float> & ground_truth,
+        std::shared_ptr<Function> func, std::uniform_real_distribution<float> & domain,
+        std::mt19937 & engine);
 private:
     void evolve_hybrid(const int & rank);
     void evolve_openmp();
+    void evaluate_group(std::vector<std::shared_ptr<Individual>> & group,
+        const std::vector<float> & samples, const std::vector<float> & ground_truth);
 
     float mutation_rate, crossover_rate;
     int seed; // Global seed, only used to generate random samples for master.
