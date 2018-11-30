@@ -63,7 +63,7 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
      fit_stdev /= n * (n - 1);
      fit_stdev = sqrt(fit_stdev);
 
-     float nodes_stdev = n * node_sumsq - (node_sumsq * node_sumsq);
+     float nodes_stdev = n * node_sumsq - (node_sum * node_sum);
      nodes_stdev /= (float)(n * (n - 1));
      nodes_stdev = sqrt(nodes_stdev);
 
@@ -104,7 +104,7 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
               << node_sum / (float)n << ","
               << nodes_stdev << ","
               << nodes_median << ","
-              << node_sum << "," 
+              << node_sum << ","
               << evaluation_time << endl;
      log_file.close();
 
