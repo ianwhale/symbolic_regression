@@ -52,7 +52,7 @@ public:
 class Parabola : public Function {
 public:
     inline float call(const float & x) const { return (x + 1) * (x + 1) - 3; }
-    inline pair<float, float> domain() const { return make_pair(-100, 100); }
+    inline pair<float, float> domain() const { return make_pair(-101, 99); }
 };
 
 class FunctionFactory {
