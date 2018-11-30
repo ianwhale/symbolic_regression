@@ -61,7 +61,7 @@ void Population::sort() {
     std::sort(this->population.begin(), this->population.end(),
         [](const indv_ptr & a, const indv_ptr & b) -> bool
         {
-            return a->get_fitness() > b->get_fitness();
+            return a->get_fitness() < b->get_fitness();
         });
 }
 

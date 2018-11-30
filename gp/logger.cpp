@@ -66,6 +66,7 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
      nodes_stdev /= (float)(n * (n - 1));
      nodes_stdev = sqrt(nodes_stdev);
 
+     // Sort population and nodes.
      population->sort();
      std::sort(nodes.begin(), nodes.end());
 
@@ -93,8 +94,8 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
      ofstream log_file;
      log_file.open(this->log_name, std::ios::app);
      log_file << current_generation << ","
-              << best->get_fitness() / best->get_tree()->num_nodes() << ","
-              << worst->get_fitness() / best->get_tree()->num_nodes() << ","
+              << worst->get_fitness() / worst->get_tree()->num_nodes() << "," // Max RMSE
+              << best->get_fitness() / best->get_tree()->num_nodes() << ","   // Min RMSE (lower better)
               << fit_sum / n << ","
               << fit_stdev << ","
               << fit_median << ","
