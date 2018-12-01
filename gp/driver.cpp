@@ -131,8 +131,6 @@ void Driver::generate_samples(vector<float> & samples,
         samples[s] = domain(engine);
         ground_truth[s] = func->call(samples[s]);
     }
-
-    cout << "First sample: " << samples[0] << endl;
 }
 
 /**
@@ -169,14 +167,10 @@ void Driver::evolve_openmp() {
             auto seed = this->root_engine();
             gen_engine.seed(seed);
 
-            cout << "Seed at generation " << current_generation << ": " << seed << endl;
-
             this->generate_samples(samples, ground_truth, func, domain, gen_engine);
 
             start_time = omp_get_wtime();
             this->evaluate_population(population, samples, ground_truth);
-
-            cout << "Individual " << 0 << " has fitness " << (*population)[0]->get_fitness() << endl;
 
             // Log results of the evaluation.
             this->logger->log(population, current_generation,
@@ -299,8 +293,6 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
             if (rank == this->MASTER) {
                 make_payloads(payloads, indvs_per_rank, population, &outgoing,
                               this->root_engine);
-
-                cout << "Seed at generation " << current_generation << ": " << outgoing.seed << endl;
             }
 
             MPI_Bcast(&outgoing, 1, Outgoing_DT, this->MASTER, MPI_COMM_WORLD);
@@ -325,8 +317,6 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
 
             gen_engine.seed(outgoing.seed);
 
-            cout << "Rank " << rank << " got seed " << outgoing.seed << endl;
-
             this->generate_samples(samples, ground_truth, func, domain, gen_engine);
 
             // Evaluate all the RPN strings.
@@ -339,7 +329,6 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
             vector<float> fitnesses(group.size(), 0);
             evaluate_group_strings(group, samples, ground_truth, fitnesses);
 
-            cout << "Rank " << rank << " sent fitnesses." << endl;
             MPI_Isend(&fitnesses[0], fitnesses.size(), MPI_FLOAT, this->MASTER, 1, MPI_COMM_WORLD, &ignore);
 
             if (rank == this->MASTER) {
@@ -351,12 +340,6 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
                     for (int j = 0; j < indvs_per_rank[i]; j++) {
                         (*population)[translate_index(i, j, indvs_per_rank)]
                             ->set_fitness(fits_from_rank[j]);
-
-                        if (translate_index(i, j, indvs_per_rank) == 0) {
-                            cout << "Individual 0 has fitness " << (*population)[0]->get_fitness() << endl;
-                        }
-
-
                     }
                 }
 
