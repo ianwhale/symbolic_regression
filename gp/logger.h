@@ -13,11 +13,9 @@ public:
     const int ARCHIVE_INTERVAL = 50;
 
     Logger(const string & _output_dir, const int & _seed) :
-        output_dir(_output_dir), seed(_seed) {
-        this->make_dir();
-        this->make_unique_output_names();
-    }
+    output_dir(_output_dir), seed(_seed) {}
 
+    void initialize();
     void make_dir();
     void make_unique_output_names();
     void log(std::shared_ptr<Population> population, const int & current_generation,

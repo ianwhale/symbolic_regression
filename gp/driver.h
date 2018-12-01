@@ -6,18 +6,14 @@
 #include <memory>
 
 class Logger;
-class Individual;
+class Population;
 class Function;
 
 struct OutgoingPayload {
-    int seed; // Random seed to generate random samples with.
+    uint_fast32_t seed; // Random seed to generate samples with.
     int payload_length; // Length of incoming string.
 };
 
-struct IncomingPayload {
-    int index; // Index of individual in the population.
-    float fitness; // Fitness of individual at the provided index.
-};
 
 
 class Driver {
@@ -41,9 +37,9 @@ public:
         std::shared_ptr<Function> func, std::uniform_real_distribution<float> & domain,
         std::mt19937 & engine);
 private:
-    void evolve_hybrid(const int & rank);
+    void evolve_hybrid(const int & rank, const int & size);
     void evolve_openmp();
-    void evaluate_group(std::vector<std::shared_ptr<Individual>> & group,
+    void evaluate_population(std::shared_ptr<Population> group,
         const std::vector<float> & samples, const std::vector<float> & ground_truth);
 
     float mutation_rate, crossover_rate;

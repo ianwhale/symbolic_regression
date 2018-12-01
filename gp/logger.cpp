@@ -118,6 +118,11 @@ void Logger::log(std::shared_ptr<Population> population, const int & current_gen
      archive_file.close();
 }
 
+void Logger::initialize() {
+    this->make_dir();
+    this->make_unique_output_names();
+}
+
 /**
  * Create the output directory if it does not exist.
  */

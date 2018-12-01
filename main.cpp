@@ -63,7 +63,7 @@ int main(int argc, char ** argv) {
             case GENERATIONS:
                 generations = stoi(optarg);
 
-                if (generations < 1) {
+                if (generations < 0) {
                     cerr << "Invalid number of generations: " << generations << endl;
                     return 1;
                 }
