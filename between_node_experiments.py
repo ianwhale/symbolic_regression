@@ -30,11 +30,11 @@ except IndexError:
     print("Must provide email, buy-in group name, and output directory.")
 
 min_nodes = 2
-max_nodes = 4
+max_nodes = 6
 
 # Best tasks and thread combination from the thread experiment.
-best_tasks = 28
-best_nesting = 1
+best_tasks = 14
+best_nesting = 2
 
 assert best_tasks * best_nesting <= 28
 
