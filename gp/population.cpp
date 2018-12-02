@@ -8,6 +8,9 @@
 #include "individual.h"
 #include "population.h"
 
+#include <iostream>
+using std::cout; using std::endl;
+
 using std::mt19937;
 using std::shared_ptr;
 using std::make_shared;
@@ -113,6 +116,10 @@ void Population::update(mt19937 & engine, const float & crossover_rate,
         }
 
         new_population.push_back(child);
+
+        // Reset parents.
+        parent_a = nullptr;
+        parent_b = nullptr;
     }
 
     // Swap in the new pointers.

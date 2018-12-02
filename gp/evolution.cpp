@@ -236,23 +236,25 @@ indv_ptr Evolution::tournament_selection(Population * population,
     std::set<size_t> unique_indices;
     uniform_int_distribution<size_t> random_indv(0, population->get_length() - 1);
 
-    // Chose random individuals.
+    size_t index = random_indv(engine);
+    indv_ptr winner = (*population)[index];
+    float best_fitness = winner->get_fitness();
+    float temp_fitness;
+
+    unique_indices.insert(index);
+
+    // Chose and compare random individuals.
     while(unique_indices.size() < tournament_size) {
-        unique_indices.insert(random_indv(engine));
-    }
+        index = random_indv(engine);
 
-    // Perform tournament (pick individual with best fitness).
-    float best_fitness = HUGE_VALF;
-    float current_fitness;
-    indv_ptr winner = nullptr;
-    for (size_t index : unique_indices) {
+        temp_fitness = (*population)[index]->get_fitness();
 
-        current_fitness = (*population)[index]->get_fitness();
-
-        if (current_fitness < best_fitness) {
-            best_fitness = current_fitness;
+        if (temp_fitness < best_fitness) {
             winner = (*population)[index];
+            best_fitness = temp_fitness;
         }
+
+        unique_indices.insert(random_indv(engine));
     }
 
     return winner;

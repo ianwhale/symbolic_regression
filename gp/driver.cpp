@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <sstream>
+#include <fstream>
 #include "mpi.h"
 #include "omp.h"
 #include "logger.h"
@@ -280,6 +281,7 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
         for (int i = 0; i < size && remainder > 0; i++) {
             indvs_per_rank[i]++;
             remainder--;
+
         }
     }
     OutgoingPayload outgoing; // Root's outgoing payload.
@@ -309,7 +311,7 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
                 // Send out all the strings (even to self)
                 start_time = omp_get_wtime();
                 for (int i = 0; i < size; i++) {
-                    // cout << "Rank " << i << " gets payload with length " << payloads[i].length() << endl;
+                    // cout << "Rank " << i << " gets payload with length " << payloads[i].length() << " (" << indvs_per_rank[i] << " individuals)" << endl;
                     MPI_Isend(payloads[i].c_str(), payloads[i].length(), MPI_CHAR, i, MASTER_TO_SLAVE_TAG, MPI_COMM_WORLD, &ignore);
                 }
             }
@@ -327,23 +329,26 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
 
             // Evaluate all the RPN strings.
             while(getline(ss, current_val, ',')) {
-                if (current_val.length() > 5) { // Minimum length of a valid string.
-                    group.push_back(current_val);
-                }
+                group.push_back(current_val);
             }
 
             vector<float> fitnesses(group.size(), 0);
             evaluate_group_strings(group, samples, ground_truth, fitnesses);
 
+            // for (int i = 0; i < fitnesses.size(); i++) {
+            //     cout << "(Rank " << rank << "): fitnesses[" << i << "] = " << fitnesses[i] << endl;
+            // }
+
+            // cout << "Rank " << rank << " sending " << fitnesses.size() << " fitnesses" << endl;
             MPI_Isend(&fitnesses[0], fitnesses.size(), MPI_FLOAT, this->MASTER, SLAVE_TO_MASTER_TAG, MPI_COMM_WORLD, &ignore);
 
             if (rank == this->MASTER) {
                 for (int i = 0; i < size; i++) {
                     float fits_from_rank[indvs_per_rank[i]];
 
-                    // cout << "Recieving fitnesses from rank " << i << endl;
+                    // cout << "Recieving " << indvs_per_rank[i] <<  " fitnesses from rank " << i << endl;
 
-                    MPI_Recv(&fits_from_rank, indvs_per_rank[i], MPI_FLOAT, i, SLAVE_TO_MASTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Recv(fits_from_rank, indvs_per_rank[i], MPI_FLOAT, i, SLAVE_TO_MASTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
                     for (int j = 0; j < indvs_per_rank[i]; j++) {
                         (*population)[translate_index(i, j, indvs_per_rank)]
