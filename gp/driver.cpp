@@ -224,16 +224,17 @@ void make_payloads(vector<string> & payloads, const vector<int> & indvs_per_rank
             payload += (*population)[j + previous_start]->get_tree()->get_rpn_string() + ",";
         }
 
+        // cout << "Payload length: " << payload.length() << endl;
+
         if (payload.length() > max_payload_length) {
             max_payload_length = payload.length();
         }
-        payloads[i] = payload;
-
+        payloads[i] = payload + '\0';
         previous_start += indvs_per_rank[i];
     }
 
     outgoing->seed = root_engine(); // Make a random seed to send to each rank.
-    outgoing->payload_length = max_payload_length; // Each rank allocates enough space for the largest payload.
+    outgoing->payload_length = max_payload_length + 1; // Each rank allocates enough space for the largest payload.
 
 }
 
@@ -245,6 +246,9 @@ void make_payloads(vector<string> & payloads, const vector<int> & indvs_per_rank
 void Driver::evolve_hybrid(const int & rank, const int & size) {
     MPI_Datatype Outgoing_DT;
     register_datatypes(&Outgoing_DT);
+
+    const int MASTER_TO_SLAVE_TAG = 0;
+    const int SLAVE_TO_MASTER_TAG = 1;
 
     mt19937 gen_engine; // Each rank has an engine to generate samples.
                         // This will be seeded each evaluation for consistency.
@@ -305,11 +309,13 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
                 // Send out all the strings (even to self)
                 start_time = omp_get_wtime();
                 for (int i = 0; i < size; i++) {
-                    MPI_Isend(payloads[i].c_str(), payloads[i].length(), MPI_CHAR, i, 0, MPI_COMM_WORLD, &ignore);
+                    // cout << "Rank " << i << " gets payload with length " << payloads[i].length() << endl;
+                    MPI_Isend(payloads[i].c_str(), payloads[i].length(), MPI_CHAR, i, MASTER_TO_SLAVE_TAG, MPI_COMM_WORLD, &ignore);
                 }
             }
 
-            MPI_Recv(string_to_eval, outgoing.payload_length, MPI_CHAR, this->MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            // cout << "Recieving evaluation string on rank " << rank << endl;
+            MPI_Recv(string_to_eval, outgoing.payload_length, MPI_CHAR, this->MASTER, MASTER_TO_SLAVE_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             string evaluate_me(string_to_eval);
             std::stringstream ss(string_to_eval);
@@ -329,13 +335,15 @@ void Driver::evolve_hybrid(const int & rank, const int & size) {
             vector<float> fitnesses(group.size(), 0);
             evaluate_group_strings(group, samples, ground_truth, fitnesses);
 
-            MPI_Isend(&fitnesses[0], fitnesses.size(), MPI_FLOAT, this->MASTER, 1, MPI_COMM_WORLD, &ignore);
+            MPI_Isend(&fitnesses[0], fitnesses.size(), MPI_FLOAT, this->MASTER, SLAVE_TO_MASTER_TAG, MPI_COMM_WORLD, &ignore);
 
             if (rank == this->MASTER) {
                 for (int i = 0; i < size; i++) {
                     float fits_from_rank[indvs_per_rank[i]];
 
-                    MPI_Recv(&fits_from_rank, indvs_per_rank[i], MPI_FLOAT, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    // cout << "Recieving fitnesses from rank " << i << endl;
+
+                    MPI_Recv(&fits_from_rank, indvs_per_rank[i], MPI_FLOAT, i, SLAVE_TO_MASTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
                     for (int j = 0; j < indvs_per_rank[i]; j++) {
                         (*population)[translate_index(i, j, indvs_per_rank)]
