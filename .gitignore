@@ -33,3 +33,6 @@
 
 results/
 .ipynb_checkpoints/
+*.ipynb
+*.eps
+*.png
