@@ -32,7 +32,7 @@ except IndexError:
 min_scale = 1
 max_scale = 6
 
-for i in range(min_scale, max_scale):
+for i in range(min_scale, max_scale + 1):
     name = "s{}".format(i)
     this_output = os.path.join(output, name)
     os.makedirs(this_output, exist_ok=True)
