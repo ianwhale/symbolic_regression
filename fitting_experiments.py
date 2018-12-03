@@ -50,8 +50,8 @@ for func in functions:
                 buyin=buyin,
                 output=this_output,
                 nodes=2,
-                tasks=14,
-                nested=2,
+                tasks=28,
+                nested=1,
                 func=func,
                 mutation_rate=m,
                 crossover_rate=cr

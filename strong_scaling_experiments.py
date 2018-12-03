@@ -44,7 +44,7 @@ for i in range(min_scale, max_scale + 1):
             buyin=buyin,
             output=this_output,
             nodes=i,
-            tasks=14,
-            nested=2,
+            tasks=28,
+            nested=1,
             population_size= i * 28
         ))
