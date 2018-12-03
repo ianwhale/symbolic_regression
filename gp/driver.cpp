@@ -55,7 +55,7 @@ void Driver::evaluate_population(shared_ptr<Population> population,
             (*population)[i]->set_fitness(
                 Evaluation::assign_rmse(
                     (*population)[i]->get_tree()->get_rpn_string(),
-                    samples, ground_truth) * (*population)[i]->get_tree()->num_nodes()
+                    samples, ground_truth) + (*population)[i]->get_tree()->num_nodes()
             );
         }
     }
@@ -85,7 +85,7 @@ void evaluate_group_strings(const vector<string> & rpn_strings,
 
             // Set each individual's fitness.
             fitnesses[i] = Evaluation::assign_rmse(rpn_strings[i],
-                samples, ground_truth) * count;;
+                samples, ground_truth) + count;
         }
     }
 
