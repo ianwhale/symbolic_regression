@@ -2,7 +2,7 @@ import os
 import sys
 
 #
-# Generate SLURM scripts for the between node experiments.
+# Generate SLURM scripts for the weak scaling experiments.
 #
 base_str = """#!/bin/bash
 #SBATCH --mail-user={email}
@@ -19,7 +19,7 @@ base_str = """#!/bin/bash
 cd ${{SLURM_SUBMIT_DIR}}
 
 export OMP_NUM_THREADS={tasks},{nested}
-srun -n {nodes} run.out -m 0.01 -c 0.75 -s ${{SLURM_ARRAY_TASK_ID}} -f 4 -p 250 -g 10000 -o ./{output}/
+srun -n {nodes} run.out -m 0.01 -c 0.75 -s ${{SLURM_ARRAY_TASK_ID}} -f 4 -p {population_size} -g 10000 -o ./{output}/
 
 scontrol show job ${{SLURM_JOB_ID}}
 """
@@ -29,20 +29,11 @@ try:
 except IndexError:
     print("Must provide email, buy-in group name, and output directory.")
 
-min_nodes = 2
-max_nodes = 6
+min_scale = 1
+max_scale = 6
 
-# Best tasks and thread combination from the thread experiment.
-best_tasks = 28
-best_nesting = 1
-
-assert best_tasks * best_nesting <= 28
-
-if best_tasks * best_nesting < 28:
-    raise Warning("Not using maximum intel16 threads per node: {} could be 28.".format(best_tasks * best_nesting))
-
-for nodes in range(min_nodes, max_nodes + 1):
-    name = "n{}".format(nodes)
+for i in range(min_scale, max_scale + 1):
+    name = "s{}".format(i)
     this_output = os.path.join(output, name)
     os.makedirs(this_output, exist_ok=True)
 
@@ -52,7 +43,8 @@ for nodes in range(min_nodes, max_nodes + 1):
             name=name,
             buyin=buyin,
             output=this_output,
-            nodes=nodes,
-            tasks=best_tasks,
-            nested=best_nesting
+            nodes=i,
+            tasks=28,
+            nested=1,
+            population_size= i * 28
         ))
